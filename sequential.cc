@@ -18,6 +18,14 @@ struct comb_t {
     unordered_set<int> neg_diags;
 };
 
+void printSolution(const vector<last_t> & solution, const int & last) {
+    cout << "(";
+    for (auto it = solution.begin(); it != solution.end() - 1; it++) {
+        cout << it->last << ", ";
+    }
+    cout << last << ")" << endl;
+}
+
 int main(int argc, char* argv[])
 {
     if (argc != 2) {
@@ -88,6 +96,7 @@ int main(int argc, char* argv[])
             }
             /* found a valid spot, continue */
             if (row == k) {
+                printSolution(curComb.previous, i);
                 solutions++;
                 curComb.cols.erase(i);
                 curComb.pos_diags.erase(row + i);

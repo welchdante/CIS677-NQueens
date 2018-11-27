@@ -109,7 +109,10 @@ int main(int argc, char* argv[])
         if (onward) {
             onward = false;
         } else {
-            break;
+            node.previous.pop_back();
+            if (node.previous.size() == 0) {
+                break;
+            }
         }
     } while (true);
 

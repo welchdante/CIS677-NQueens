@@ -41,72 +41,67 @@ int main(int argc, char* argv[])
         exit(EXIT_SUCCESS);
     }
 
-    deque<comb_t> combinations;
+    comb_t node;
 
     int solutions = 0;
 
     /* initialize combinations */
     int row = 1;
 
-    comb_t tempComb;
-
     last_t next = { row, 1 };
-    tempComb.previous.push_back(next);
-    tempComb.cols.insert(1);
+    node.previous.push_back(next);
+    node.cols.insert(1);
 
     next = { 2, 0 };
 
-    tempComb.previous.push_back(next);
+    node.previous.push_back(next);
 
-    tempComb.pos_diags.insert(row + 1);
-    tempComb.neg_diags.insert(row - 1);
-    combinations.push_back(tempComb);
+    node.pos_diags.insert(row + 1);
+    node.neg_diags.insert(row - 1);
 
     pair<unordered_set<int>::iterator, bool> result;
     int prevCol;
     bool onward = false;
     do {
-        comb_t & curComb = combinations.back();
-        // combinations.pop_back();
         
-        row = curComb.previous.back().row;
+        row = node.previous.back().row;
         /* remove old placement if applicable */
-        prevCol = curComb.previous.back().last;
+        prevCol = node.previous.back().last;
         if (prevCol > 0) {
-            curComb.cols.erase(prevCol);
-            curComb.pos_diags.erase(row + prevCol);
-            curComb.neg_diags.erase(row - prevCol);
+            node.cols.erase(prevCol);
+            node.pos_diags.erase(row + prevCol);
+            node.neg_diags.erase(row - prevCol);
         }
-        for (int i = curComb.previous.back().last + 1; i <= k; i++) {
+        for (int i = node.previous.back().last + 1; i <= k; i++) {
 
-            result = curComb.cols.insert(i);
+            result = node.cols.insert(i);
             if (!result.second) {
                 continue;
             }
-            result = curComb.pos_diags.insert(row + i);
+            result = node.pos_diags.insert(row + i);
             if (!result.second) {
-                curComb.cols.erase(i);
+                node.cols.erase(i);
                 continue;
             }
-            result = curComb.neg_diags.insert(row - i);
+            result = node.neg_diags.insert(row - i);
             if (!result.second) {
-                curComb.cols.erase(i);
-                curComb.pos_diags.erase(row + i);
+                node.cols.erase(i);
+                node.pos_diags.erase(row + i);
                 continue;
             }
             /* found a valid spot, continue */
             if (row == k) {
-                printSolution(curComb.previous, i);
+                printSolution(node.previous, i);
                 solutions++;
-                curComb.cols.erase(i);
-                curComb.pos_diags.erase(row + i);
-                curComb.neg_diags.erase(row - i);
+                node.cols.erase(i);
+                node.pos_diags.erase(row + i);
+                node.neg_diags.erase(row - i);
                 continue;
             }
-            curComb.previous.back().last = i;
+            node.previous.back().last = i;
             next = { row + 1, 0 };
 
-            curComb.previous.push_back(next);
+            node.previous.push_back(next);
             onward = true;
             break;
         }
@@ -114,9 +109,9 @@ int main(int argc, char* argv[])
         if (onward) {
             onward = false;
         } else {
-            curComb.previous.pop_back();
+            break;
         }
-    } while (combinations.back().previous.size() > 0);
+    } while (true);
 
     cout << "Solutions:\t" << solutions << endl;
 }

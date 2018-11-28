@@ -25,7 +25,6 @@ struct comb_t {
 int main(int argc, char* argv[])
 {
     int my_rank, num_nodes;
-    MPI_Request req;
 
     MPI_Init(&argc, &argv);
     MPI_Comm_rank(MPI_COMM_WORLD, &my_rank);
@@ -48,15 +47,18 @@ int main(int argc, char* argv[])
         int recvSize;
         int sendSolutions = 0;
 
+        MPI_Request req;
+
         do {
 
             MPI_Isend(&sendSolutions, 1, MPI_INT, MASTER, TAG, MPI_COMM_WORLD, &req);
-            sendSolutions = 0;
             MPI_Wait(&req, MPI_STATUS_IGNORE);
+
+            sendSolutions = 0;
 
             MPI_Recv(&recvSize, 1, MPI_INT, MASTER, TAG, MPI_COMM_WORLD, MPI_STATUS_IGNORE);
 
-            if (recvSize < 0) {
+            if (recvSize <= 0) {
                 break;
             }
 
@@ -258,13 +260,15 @@ int main(int argc, char* argv[])
 
         while (combinations.size() > 0) {
             for (int i = 1; i < num_nodes; i++) {
+                if (combinations.empty()) {
+                    break;
+                }
                 MPI_Test(&requests[i - 1], &flag, MPI_STATUS_IGNORE);
                 if (flag == 0) {
                     continue;
                 }
                 
                 solutions += recvSolutions[i - 1];
-                // cout << recvSolutions[i - 1] << " solutions received from node " << i << endl;
 
                 comb_t curComb = combinations.front();
                 combinations.pop_front();
@@ -286,6 +290,7 @@ int main(int argc, char* argv[])
             }
         }
 
+        sendSize = -1;
         /* send done signal */
         for (int i = 1; i < num_nodes; i++) {
             MPI_Wait(&requests[i - 1], MPI_STATUS_IGNORE);
@@ -293,7 +298,6 @@ int main(int argc, char* argv[])
             solutions += recvSolutions[i - 1];
             // cout << recvSolutions[i - 1] << " solutions received from node " << i << endl;
 
-            sendSize = -1;
             MPI_Send(&sendSize, 1, MPI_INT, i, TAG, MPI_COMM_WORLD);
         }
 

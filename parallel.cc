@@ -208,7 +208,7 @@ int main(int argc, char* argv[])
         }
 
         pair<unordered_set<int>::iterator, bool> result;
-        while ((int) combinations.size() > 0 && (int) combinations.size() < 5 * (num_nodes - 1)) {
+        while ((int) combinations.size() > 0 && (int) combinations.size() < 10 * (num_nodes - 1)) {
             comb_t curComb = combinations.front();
             combinations.pop_front();
             
@@ -255,8 +255,6 @@ int main(int argc, char* argv[])
                 curComb.neg_diags.erase(row - i);
             }
         }
-
-        cout << "combination size:\t" << combinations.size() << endl;
 
         while (combinations.size() > 0) {
             for (int i = 1; i < num_nodes; i++) {
